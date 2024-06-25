@@ -4,6 +4,11 @@ import 'package:csv/csv.dart';
 import 'package:path/path.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'upload.dart'; // Import the upload page
+import 'package:usb_serial/usb_serial.dart';
+import 'package:usb_serial/transaction.dart';
+import 'dart:async';
+import 'dart:typed_data';
+import 'dart:convert';
 
 class EventLogPage extends StatefulWidget {
   final String userId;
@@ -36,6 +41,10 @@ class _EventLogPageState extends State<EventLogPage> {
   late String experimenterId; // Include experimenterId
   late String sessionId;
 
+  UsbPort? _port;
+  UsbDevice? _device;
+  String _lastMessageSent = "";
+  List<Widget> _serialData = [];
 
   List<List<dynamic>> _logData = [];
   TextEditingController _eventController = TextEditingController();
@@ -44,15 +53,54 @@ class _EventLogPageState extends State<EventLogPage> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _eventController.dispose();
+    _port?.close();
     super.dispose();
   }
+
+  StreamSubscription<Uint8List>? _subscription;
+  Transaction<Uint8List>? _transaction;
 
   @override
   void initState() {
     super.initState();
+    _initializeVariables();
     _requestPermissionAndInit();
     _clearRecentLogs();
     _loadLog();
+
+    UsbSerial.usbEventStream?.listen((UsbEvent event) {
+      _checkDevices();
+    });
+
+    _checkDevices();
+  }
+
+  void _initializeVariables(){
+    userId = widget.userId;
+    participantId = widget.participantId;
+    mDaqStatus = widget.mDaqStatus;
+    bioPacStatus = widget.bioPacStatus;
+    experimenterId = widget.experimenterId;
+    sessionId = widget.sessionId;
+  }
+
+  void _sendMessage(String text) async {
+    if (text.isNotEmpty) {
+      try {
+        _port!.write(Uint8List.fromList(utf8.encode(text + "\n")));
+        setState(() {
+          _lastMessageSent = text;
+        });
+        print('Message sent: $text');
+      } catch (e) {
+        print('Error sending message: $e');
+      }
+    }
+  }
+
+  void _stopEventLog() {
+    _sendMessage("!"); //!
   }
 
   void _clearRecentLogs() {
@@ -60,11 +108,71 @@ class _EventLogPageState extends State<EventLogPage> {
       _logData.clear();
     });
   }
+  Future<bool> _connectTo(UsbDevice? device) async {
+    _port?.close();
+
+    if (device == null) {
+      _device = null;
+      setState(() {
+        mDaqStatus = "Disconnected";
+        bioPacStatus = "Disconnected";
+      });
+      return true;
+    }
+
+    _port = await device.create();
+    if (await (_port!.open()) != true) {
+      setState(() {
+        mDaqStatus = "Failed to open port";
+        bioPacStatus = "Failed to open port";
+      });
+      return false;
+    }
+    _device = device;
+
+    await _port!.setDTR(true);
+    await _port!.setRTS(true);
+    await _port!.setPortParameters(
+        115200, UsbPort.DATABITS_8, UsbPort.STOPBITS_1, UsbPort.PARITY_NONE);
+
+    _transaction = Transaction.terminated(
+        _port!.inputStream!, Uint8List.fromList([13, 10]));
+
+    setState(() {
+      mDaqStatus = "Connected";
+      bioPacStatus = "Connected";
+    });
+    return true;
+  }
+
+  Future<void> _checkDevices() async {
+    List<UsbDevice> devices = await UsbSerial.listDevices();
+    bool picoWConnected = false;
+
+    for (var device in devices) {
+      if (device.productName != null &&
+          device.productName!.contains('Pico W')) {
+        picoWConnected = true;
+        userId = device.productName!;
+        await _connectTo(device);
+      }
+    }
+
+    setState(() {
+      mDaqStatus = picoWConnected ? 'Connected' : 'Disconnected';
+      bioPacStatus = picoWConnected ? 'Connected' : 'Disconnected';
+
+      if (!picoWConnected) {
+        userId = widget
+            .userId; // Keep the previous userId when the device is unplugged
+      }
+    });
+  }
 
   Future<void> _requestPermissionAndInit() async {
-    var status = await Permission.manageExternalStorage.status;
+    var status = await Permission.storage.status; //used to be permission.manageexternalstorage.status
     if (!status.isGranted) {
-      status = await Permission.manageExternalStorage.request();
+      status = await Permission.storage.request(); //used to be permission.manageexternalstorage.status
       if (!status.isGranted) {
         print('Storage permission denied');
         return;
@@ -77,7 +185,6 @@ class _EventLogPageState extends State<EventLogPage> {
   try {
     // Assuming 'Documents' folder is directly accessible
     String documentsPath = '/storage/emulated/0/Documents'; // Update with actual path
-
     return documentsPath;
   } catch (err) {
     print("Error getting documents directory: $err");
@@ -88,7 +195,7 @@ class _EventLogPageState extends State<EventLogPage> {
   void _logEvent(BuildContext context, String eventDescription, String time) async {
   final now = DateTime.now();
   final date = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-  final logEntry = [date, time, eventDescription, widget.userId, widget.participantId, widget.experimenterId, widget.sessionId];
+  final logEntry = [date, time, eventDescription, userId, participantId, experimenterId, sessionId];
 
   setState(() {
     _logData.add(logEntry);
@@ -115,10 +222,12 @@ class _EventLogPageState extends State<EventLogPage> {
 
       print('Log Entry: $logEntry');
       print('CSV file saved at: $filePath');
-    } catch (e) {
+    } 
+    catch (e) {
       print('Error writing to file: $e');
     }
-  } else {
+  } 
+  else {
     print('Failed to get documents directory');
   }
 }
@@ -140,7 +249,7 @@ class _EventLogPageState extends State<EventLogPage> {
 
       List<List<dynamic>> filteredData = [];
       for (var entry in data) {
-        if (entry.length <= 7 && entry[0] == today) { 
+        if (entry.length >= 7 && entry[0] == today) { //was <=
           filteredData.add(entry);  
         }
       }
@@ -148,7 +257,8 @@ class _EventLogPageState extends State<EventLogPage> {
       setState(() {
         _logData = filteredData;
       });
-    } else {
+    } 
+    else {
       setState(() {
         _logData = [];
       });
@@ -270,6 +380,32 @@ class _EventLogPageState extends State<EventLogPage> {
               ],
             );
           },
+        );
+      },
+    );
+  }
+  Future<void> _showStopConfirmationDialog(BuildContext context) async {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Stop'),
+          content: const Text('Are you sure you want to stop?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Stop'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _stopEventLog(); // Call the stop function
+              },
+            ),
+          ],
         );
       },
     );
@@ -426,7 +562,7 @@ class _EventLogPageState extends State<EventLogPage> {
                     Container(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () => _logEvent(context, 'Stop', _getCurrentTime()),
+                        onPressed: () => _showStopConfirmationDialog(context),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
                           padding: EdgeInsets.symmetric(vertical: 16.0),
