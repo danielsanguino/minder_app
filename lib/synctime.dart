@@ -359,20 +359,21 @@ class _SyncTimePageState extends State<SyncTimePage> {
                             Navigator.pop(context);
                           },
                         ),
-                        TextButton.icon(
+                        Container(
+                          decoration: BoxDecoration(
+                            border: isNextButtonActive ? Border.all(color: Colors.white, width: 2.0): null,
+                            borderRadius: BorderRadius. circular(30.0),
+                          ),
+                          child: TextButton.icon(
                           icon: Icon(
                             Icons.arrow_forward,
-                            color: isNextButtonActive
-                                ? Colors.green
-                                : Colors.white,
+                            color: Colors.white,
                             size: 36.0,
                           ),
                           label: Text(
                             "Next",
                             style: TextStyle(
-                              color: isNextButtonActive
-                                  ? Colors.green
-                                  : Colors.white,
+                              color: Colors.white,
                               fontSize: 20.0,
                             ),
                           ),
@@ -394,6 +395,8 @@ class _SyncTimePageState extends State<SyncTimePage> {
                                 }
                               : null,
                         ),
+                        )
+                        
                       ],
                     ),
                   ],

@@ -9,14 +9,12 @@ class UploadPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 206, 132, 224), // Set the background color for the whole app
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
             width: double.infinity,
             padding: EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: Color.fromARGB(255, 206, 132, 224),
-            ),
             child: Column(
               children: [
                 Padding(
@@ -35,15 +33,30 @@ class UploadPage extends StatelessWidget {
                 SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ReportPage(userId: userId)),
-                    );
+                    // Add your upload functionality here
                   },
-                  child: Text('Next'),
+                  child: Text('Upload'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: EdgeInsets.symmetric(vertical: 16.0),
+                  ),
                 ),
-                TextButton.icon(
+                SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    // Add your merge functionality here
+                  },
+                  child: Text('Merge'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: EdgeInsets.symmetric(vertical: 16.0),
+                  ), 
+                ),
+                SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton.icon(
                   icon: Icon(
                     Icons.arrow_back,
                     color: Colors.white,
@@ -57,6 +70,35 @@ class UploadPage extends StatelessWidget {
                     Navigator.pop(context);
                   },
                 ),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30.0),
+                    border:Border.all(color: Colors.white, width: 2.0),
+                  ),
+                  child: TextButton.icon(
+                    icon: Icon(
+                      Icons.arrow_forward,
+                      color: Colors.white,
+                      size:36.0,
+                    ),
+                    label: Text(
+                      "Next",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                      ),
+                    ),
+                    onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ReportPage(userId: userId)),
+                          );
+                        },
+                      ),
+                    ),
+                  ],     
+                ),
               ],
             ),
           ),
@@ -65,3 +107,4 @@ class UploadPage extends StatelessWidget {
     );
   }
 }
+

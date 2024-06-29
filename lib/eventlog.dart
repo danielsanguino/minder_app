@@ -50,6 +50,11 @@ class _EventLogPageState extends State<EventLogPage> {
   TextEditingController _eventController = TextEditingController();
   ScrollController _scrollController = ScrollController();
 
+  bool _stopButtonEnabled = true;
+
+  int _selectedCowScore = 1; //default values for dropdowns
+  int _selectedCravingIntensity = 1;
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -108,6 +113,36 @@ class _EventLogPageState extends State<EventLogPage> {
       _logData.clear();
     });
   }
+
+  Future<void> _checkDevices() async {
+    List<UsbDevice> devices = await UsbSerial.listDevices();
+    bool picoWConnected = false;
+    UsbDevice? connectedDevice; ////
+
+    for (var device in devices) {
+      if (device.productName != null &&
+          device.productName!.contains('Pico W')) {
+        picoWConnected = true;
+        connectedDevice = device;
+        break;
+      }
+    }
+
+    setState(() {
+      mDaqStatus = picoWConnected ? 'Connected' : 'Disconnected';
+      bioPacStatus = picoWConnected ? 'Connected' : 'Disconnected';
+      _stopButtonEnabled = picoWConnected;
+
+      if (!picoWConnected) {
+        userId = widget.userId; // Keep the previous userId when the device is unplugged
+      }
+    });
+
+    if (picoWConnected && _device != connectedDevice){
+      await _connectTo(connectedDevice);
+    }
+  }
+
   Future<bool> _connectTo(UsbDevice? device) async {
     _port?.close();
 
@@ -117,7 +152,7 @@ class _EventLogPageState extends State<EventLogPage> {
         mDaqStatus = "Disconnected";
         bioPacStatus = "Disconnected";
       });
-      return true;
+      return false;
     }
 
     _port = await device.create();
@@ -145,32 +180,8 @@ class _EventLogPageState extends State<EventLogPage> {
     return true;
   }
 
-  Future<void> _checkDevices() async {
-    List<UsbDevice> devices = await UsbSerial.listDevices();
-    bool picoWConnected = false;
-
-    for (var device in devices) {
-      if (device.productName != null &&
-          device.productName!.contains('Pico W')) {
-        picoWConnected = true;
-        userId = device.productName!;
-        await _connectTo(device);
-      }
-    }
-
-    setState(() {
-      mDaqStatus = picoWConnected ? 'Connected' : 'Disconnected';
-      bioPacStatus = picoWConnected ? 'Connected' : 'Disconnected';
-
-      if (!picoWConnected) {
-        userId = widget
-            .userId; // Keep the previous userId when the device is unplugged
-      }
-    });
-  }
-
   Future<void> _requestPermissionAndInit() async {
-    var status = await Permission.storage.status; //used to be permission.manageexternalstorage.status
+    var status = await Permission.storage.status; 
     if (!status.isGranted) {
       status = await Permission.storage.request(); //used to be permission.manageexternalstorage.status
       if (!status.isGranted) {
@@ -195,15 +206,30 @@ class _EventLogPageState extends State<EventLogPage> {
   void _logEvent(BuildContext context, String eventDescription, String time) async {
   final now = DateTime.now();
   final date = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+
+  // Map for dropdown menus
+  Map<String, String> dropdownDescriptions = {
+    'Cow Score': 'Cow Score',
+    'Craving Intensity': 'Craving Intensity',
+  };
+  
+  if (dropdownDescriptions.containsValue(eventDescription)) {
+      if (eventDescription == 'Cow Score') {
+        eventDescription += ' $_selectedCowScore';
+      } else if (eventDescription == 'Craving Intensity') {
+        eventDescription += ' $_selectedCravingIntensity';
+      }
+    }
+
   final logEntry = [date, time, eventDescription, userId, participantId, experimenterId, sessionId];
 
   setState(() {
-    _logData.add(logEntry);
-    _logData.sort((a, b) => '${a[0]} ${a[1]}'.compareTo('${b[0]} ${b[1]}')); // Sort by date and time
+    _logData.insert(0,logEntry);
+    _logData.sort((a, b) => '${b[0]} ${b[1]}'.compareTo('${a[0]} ${a[1]}')); // Sort by date and time
   });
 
-  _scrollController.animateTo(
-    _scrollController.position.maxScrollExtent,
+    _scrollController.animateTo(
+    0,
     duration: Duration(milliseconds: 300),
     curve: Curves.easeOut,
   );
@@ -231,7 +257,17 @@ class _EventLogPageState extends State<EventLogPage> {
     print('Failed to get documents directory');
   }
 }
+void _onCowScoreChanged(int value) {
+    setState(() {
+      _selectedCowScore = value;
+    });
+  }
 
+  void _onCravingIntensityChanged(int value) {
+    setState(() {
+      _selectedCravingIntensity = value;
+    });
+  }
 
   void _loadLog() async {
   final documentsDir = await _getDocumentsDirectoryPath();
@@ -562,9 +598,9 @@ class _EventLogPageState extends State<EventLogPage> {
                     Container(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () => _showStopConfirmationDialog(context),
+                        onPressed: _stopButtonEnabled ? () => _showStopConfirmationDialog(context) : null,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
+                          backgroundColor: _stopButtonEnabled ? Colors.red : Colors.grey,
                           padding: EdgeInsets.symmetric(vertical: 16.0),
                         ),
                         child: Text(
@@ -763,31 +799,36 @@ class _EventLogPageState extends State<EventLogPage> {
                             Navigator.pop(context);
                           },
                         ),
-                        TextButton.icon(
-                          icon: Icon(
-                            Icons.arrow_forward,
-                            color: Colors.green,
-                            size: 36.0,
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30.0),
+                            border: Border.all(color: Colors.white, width: 2.0),
                           ),
-                          label: Text(
-                            "Next",
-                            style: TextStyle(
-                              color: Colors.green,
-                              fontSize: 20.0,
+                          child: TextButton.icon(
+                            icon: Icon(
+                              Icons.arrow_forward,
+                              color:Colors.white,
+                              size: 36.0,
                             ),
-                          ),
-                          onPressed: () {
+                            label: Text(
+                              "Next",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20.0,
+                              ),
+                            ),
+                            onPressed: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => UploadPage(
                                         userId: userId,
-                                      ),
-                                    ),
-                                  );
-                                }
-                            
-                        ),
+                                   ),
+                                 ),
+                              );
+                            }
+                          )
+                        )
                       ]
                     )
                   ],

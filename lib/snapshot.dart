@@ -210,14 +210,6 @@ class _SnapshotPageState extends State<SnapshotPage> {
     });
   }
 
-  void _stopSnapshot() {
-    _sendMessage("!"); //!
-    setState(() {
-      isSnapshotCaptured = false;
-      _updateNextButtonState();
-    });
-  }
-
   void _updateNextButtonState() {
     setState(() {
       isSnapshotCaptured = true;
@@ -462,32 +454,20 @@ class _SnapshotPageState extends State<SnapshotPage> {
                       ],
                     ),
                     SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton(
-                          onPressed: _startSnapshot,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                            minimumSize: Size(150, 50),
-                          ),
-                          child: Text(
-                            'Start',
-                            style: TextStyle(fontSize: 16),
-                          ),
+                    Container(
+                      width: double.infinity,
+                      
+                      child: ElevatedButton(
+                        onPressed: _startSnapshot,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          padding: EdgeInsets.symmetric(vertical: 16.0),
                         ),
-                        ElevatedButton(
-                          onPressed: _stopSnapshot,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            minimumSize: Size(150, 50),
-                          ),
-                          child: Text(
-                            'Stop',
-                            style: TextStyle(fontSize: 16),
-                          ),
+                        child: Text(
+                          'Start',
+                          style: TextStyle(fontSize: 20.0, color: Colors.white),
                         ),
-                      ],
+                      ),
                     ),
                     SizedBox(height: 16),
                     Text(
@@ -517,40 +497,42 @@ class _SnapshotPageState extends State<SnapshotPage> {
                             Navigator.pop(context);
                           },
                         ),
-                        TextButton.icon(
-                          icon: Icon(
-                            Icons.arrow_forward,
-                            color: isSnapshotCaptured
-                                ? Colors.green
-                                : Colors.white,
-                            size: 36.0,
+                        Container(
+                          decoration: BoxDecoration(
+                            border: isSnapshotCaptured ? Border.all(color: Colors.white, width:2.0): null,
+                            borderRadius : BorderRadius.circular(30.0), //adjust radius 
                           ),
-                          label: Text(
-                            "Next",
-                            style: TextStyle(
-                              color: isSnapshotCaptured
-                                  ? Colors.green
-                                  : Colors.white,
-                              fontSize: 20.0,
+                          child: TextButton.icon(
+                            icon: Icon(
+                              Icons.arrow_forward,
+                              color: Colors.white,
+                              size: 36.0,
                             ),
-                          ),
-                          onPressed: isSnapshotCaptured
-                              ? () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => EventLogPage(
-                                        userId: userId,
-                                        participantId: participantId,
-                                        experimenterId: experimenterId, // Include experimenterId
-                                        sessionId: sessionId,
-                                        mDaqStatus: mDaqStatus,
-                                        bioPacStatus: bioPacStatus,
+                            label: Text(
+                              "Next",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20.0,
+                              ),
+                            ),
+                            onPressed: isSnapshotCaptured
+                                ? () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => EventLogPage(
+                                          userId: userId,
+                                          participantId: participantId,
+                                          experimenterId: experimenterId, // Include experimenterId
+                                          sessionId: sessionId,
+                                          mDaqStatus: mDaqStatus,
+                                          bioPacStatus: bioPacStatus,
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                }
-                              : null,
+                                    );
+                                  }
+                                : null,
+                          )
                         ),
                       ],
                     ),
