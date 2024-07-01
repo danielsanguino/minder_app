@@ -52,9 +52,6 @@ class _EventLogPageState extends State<EventLogPage> {
 
   bool _stopButtonEnabled = true;
 
-  int _selectedCowScore = 1; //default values for dropdowns
-  int _selectedCravingIntensity = 1;
-
   @override
   void dispose() {
     _scrollController.dispose();
@@ -120,8 +117,7 @@ class _EventLogPageState extends State<EventLogPage> {
     UsbDevice? connectedDevice; ////
 
     for (var device in devices) {
-      if (device.productName != null &&
-          device.productName!.contains('Pico W')) {
+      if (device.productName != null && device.productName!.contains('Pico W')) {
         picoWConnected = true;
         connectedDevice = device;
         break;
@@ -207,20 +203,6 @@ class _EventLogPageState extends State<EventLogPage> {
   final now = DateTime.now();
   final date = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
-  // Map for dropdown menus
-  Map<String, String> dropdownDescriptions = {
-    'Cow Score': 'Cow Score',
-    'Craving Intensity': 'Craving Intensity',
-  };
-  
-  if (dropdownDescriptions.containsValue(eventDescription)) {
-      if (eventDescription == 'Cow Score') {
-        eventDescription += ' $_selectedCowScore';
-      } else if (eventDescription == 'Craving Intensity') {
-        eventDescription += ' $_selectedCravingIntensity';
-      }
-    }
-
   final logEntry = [date, time, eventDescription, userId, participantId, experimenterId, sessionId];
 
   setState(() {
@@ -243,7 +225,7 @@ class _EventLogPageState extends State<EventLogPage> {
       bool fileExists = await file.exists();
 
       // Append the new log entry to the CSV file  
-      final csvData = ListToCsvConverter().convert([logEntry]) + '\n'; //test final and see if it still works, if not go back to string
+      final csvData = ListToCsvConverter().convert([logEntry]) + '\n'; 
       await file.writeAsString(csvData, mode: fileExists ? FileMode.append : FileMode.write);
 
       print('Log Entry: $logEntry');
@@ -257,17 +239,6 @@ class _EventLogPageState extends State<EventLogPage> {
     print('Failed to get documents directory');
   }
 }
-void _onCowScoreChanged(int value) {
-    setState(() {
-      _selectedCowScore = value;
-    });
-  }
-
-  void _onCravingIntensityChanged(int value) {
-    setState(() {
-      _selectedCravingIntensity = value;
-    });
-  }
 
   void _loadLog() async {
   final documentsDir = await _getDocumentsDirectoryPath();
@@ -285,7 +256,7 @@ void _onCowScoreChanged(int value) {
 
       List<List<dynamic>> filteredData = [];
       for (var entry in data) {
-        if (entry.length >= 7 && entry[0] == today) { //was <=
+        if (entry.length >= 7 && entry[0] == today) { 
           filteredData.add(entry);  
         }
       }
@@ -315,7 +286,114 @@ void _onCowScoreChanged(int value) {
       },
     );
   }
+  Future<void> _showCravingIntensityDialog(BuildContext context) async {
+    int selectedCravingIntensity = 0;
 
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context){
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: Text('Choose Craving Intensity'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                        DropdownButton<int>( 
+                          value: selectedCravingIntensity,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedCravingIntensity = value!;
+                            });
+                          },
+                          items: List.generate(
+                            101,
+                            (index) => DropdownMenuItem(
+                              value: index,
+                              child: Text(index.toString().padLeft(2, '0')),
+                            ),
+                          ),
+                        ),
+                ]
+              ),
+            
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _logEvent(context,'Cow Score $selectedCravingIntensity', _getCurrentTime());
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Log Event'),
+                ),
+              ],
+            );
+          }
+          
+        );
+      }
+    );
+
+  }
+  Future<void> _showCowScoreDialog(BuildContext context) async {
+    int selectedCowScore = 0;
+
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context){
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: Text('Choose Cow Score'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                        DropdownButton<int>( 
+                          value: selectedCowScore,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedCowScore = value!;
+                            });
+                          },
+                          items: List.generate(
+                            31,
+                            (index) => DropdownMenuItem(
+                              value: index,
+                              child: Text(index.toString().padLeft(2, '0')),
+                            ),
+                          ),
+                        ),
+                ]
+              ),
+            
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _logEvent(context,'Cow Score $selectedCowScore', _getCurrentTime());
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Log Event'),
+                ),
+              ],
+            );
+          }
+          
+        );
+      }
+    );
+
+  }
   Future<void> _showManualEventDialog(BuildContext context) async {
     int selectedHour = 0;
     int selectedMinute = 0;
@@ -681,32 +759,30 @@ void _onCowScoreChanged(int value) {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
-                          child: ElevatedButton(
-                            onPressed: () => _logEvent(context, 'Event 5', _getCurrentTime()),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.cyan,
-                              padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.03),
-                            ),
-                            child: Text(
-                              'Event 5',
-                              style: TextStyle(fontSize: 20.0, color: Colors.white),
-                            ),
-                          ),
-                        ),
+                                child: ElevatedButton(
+                                  onPressed: () async {await _showCowScoreDialog(context);},
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.cyan,
+                                    padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.03),
+                                  ),
+                                  child: Text('Choose Cow Score',
+                                  style: TextStyle(fontSize: 20.0, color: Colors.white),
+                                  ),
+                                ),
+                              ),
                         SizedBox(width: 16),
                         Expanded(
-                          child: ElevatedButton(
-                            onPressed: () => _logEvent(context, 'Event 6', _getCurrentTime()),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.teal,
-                              padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.03),
-                            ),
-                            child: Text(
-                              'Event 6',
-                              style: TextStyle(fontSize: 20.0, color: Colors.white),
-                            ),
-                          ),
-                        ),
+                                child: ElevatedButton(
+                                  onPressed: () async {await _showCravingIntensityDialog(context);},
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.teal,
+                                    padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.03),
+                                  ),
+                                  child: Text('Choose Craving Intensity',
+                                  style: TextStyle(fontSize: 20.0, color: Colors.white),
+                                  ),
+                                ),
+                              ),
                       ],
                     ),
                     SizedBox(height: 16),
