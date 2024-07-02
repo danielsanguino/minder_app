@@ -9,7 +9,7 @@ class UploadPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 206, 132, 224), // Set the background color for the whole app
+      backgroundColor: Color.fromARGB(255, 255, 200, 221), // Set the background color for the whole app
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -37,7 +37,7 @@ class UploadPage extends StatelessWidget {
                   },
                   child: Text('Upload'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Color.fromARGB(255,162,210,255),
                     padding: EdgeInsets.symmetric(vertical: 16.0),
                   ),
                 ),
@@ -48,7 +48,7 @@ class UploadPage extends StatelessWidget {
                   },
                   child: Text('Merge'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Color.fromARGB(255,162,210,255),
                     padding: EdgeInsets.symmetric(vertical: 16.0),
                   ), 
                 ),

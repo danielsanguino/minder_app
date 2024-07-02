@@ -202,7 +202,7 @@ class _InitializationPageState extends State<InitializationPage>
             height: MediaQuery.of(context).size.height,
             padding: EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: Color.fromARGB(255, 206, 132, 224),
+              color: Color.fromARGB(255, 255, 200, 221),
             ),
             child: Column(
               children: [

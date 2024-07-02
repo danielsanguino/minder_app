@@ -517,6 +517,7 @@ class _EventLogPageState extends State<EventLogPage> {
               onPressed: () {
                 Navigator.of(context).pop();
                 _stopEventLog(); // Call the stop function
+                _logEvent(context,'Stop',_getCurrentTime());
               },
             ),
           ],
@@ -533,7 +534,7 @@ class _EventLogPageState extends State<EventLogPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 206, 132, 224),
+      backgroundColor: Color.fromARGB(255, 255, 200, 221),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -565,7 +566,7 @@ class _EventLogPageState extends State<EventLogPage> {
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.white),
                               borderRadius: BorderRadius.circular(8.0),
-                              color: Colors.white.withOpacity(0.5),
+                              color: const Color.fromARGB(255, 189, 224, 254).withOpacity(0.5),
                             ),
                             padding: EdgeInsets.all(8.0),
                             child: Column(
@@ -603,7 +604,7 @@ class _EventLogPageState extends State<EventLogPage> {
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.white),
                               borderRadius: BorderRadius.circular(8.0),
-                              color: Colors.white.withOpacity(0.5),
+                              color: const Color.fromARGB(255, 189, 224, 254).withOpacity(0.5),
                             ),
                             padding: EdgeInsets.all(8.0),
                             child: Column(
@@ -640,7 +641,7 @@ class _EventLogPageState extends State<EventLogPage> {
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.white),
                               borderRadius: BorderRadius.circular(8.0),
-                              color: Colors.white.withOpacity(0.5),
+                              color: const Color.fromARGB(255, 189, 224, 254).withOpacity(0.5),
                             ),
                             padding: EdgeInsets.all(8.0),
                             child: Column(
@@ -695,7 +696,7 @@ class _EventLogPageState extends State<EventLogPage> {
                           child: ElevatedButton(
                             onPressed: () => _logEvent(context, 'Event 1', _getCurrentTime()),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.cyan,
+                              backgroundColor: const Color.fromARGB(255, 162, 210, 255),
                               padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.03),
                             ),
                             child: Text(
@@ -709,7 +710,7 @@ class _EventLogPageState extends State<EventLogPage> {
                           child: ElevatedButton(
                             onPressed: () => _logEvent(context, 'Event 2', _getCurrentTime()),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.teal,
+                              backgroundColor: const Color.fromARGB(255, 162, 210, 255),
                               padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.03),
                             ),
                             child: Text(
@@ -729,7 +730,7 @@ class _EventLogPageState extends State<EventLogPage> {
                           child: ElevatedButton(
                             onPressed: () => _logEvent(context, 'Event 3', _getCurrentTime()),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.cyan,
+                              backgroundColor: const Color.fromARGB(255, 162, 210, 255),
                               padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.03),
                             ),
                             child: Text(
@@ -743,7 +744,7 @@ class _EventLogPageState extends State<EventLogPage> {
                           child: ElevatedButton(
                             onPressed: () => _logEvent(context, 'Event 4', _getCurrentTime()),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.teal,
+                              backgroundColor: const Color.fromARGB(255, 162, 210, 255),
                               padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.03),
                             ),
                             child: Text(
@@ -762,7 +763,7 @@ class _EventLogPageState extends State<EventLogPage> {
                                 child: ElevatedButton(
                                   onPressed: () async {await _showCowScoreDialog(context);},
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.cyan,
+                                    backgroundColor: const Color.fromARGB(255, 162, 210, 255),
                                     padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.03),
                                   ),
                                   child: Text('Choose Cow Score',
@@ -775,7 +776,7 @@ class _EventLogPageState extends State<EventLogPage> {
                                 child: ElevatedButton(
                                   onPressed: () async {await _showCravingIntensityDialog(context);},
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.teal,
+                                    backgroundColor: const Color.fromARGB(255, 162, 210, 255),
                                     padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.03),
                                   ),
                                   child: Text('Choose Craving Intensity',
@@ -789,7 +790,7 @@ class _EventLogPageState extends State<EventLogPage> {
                     Container(
                       padding: EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.5),
+                        color: const Color.fromARGB(255, 189, 224, 254).withOpacity(0.5),
                         borderRadius: BorderRadius.circular(8.0),
                         border: Border.all(color: Colors.white),
                       ),
@@ -820,7 +821,7 @@ class _EventLogPageState extends State<EventLogPage> {
                                 onPressed: () => _logEvent(context, _eventController.text.trim(), _getCurrentTime()),
                                 style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
-                                  backgroundColor: Colors.cyan,
+                                  backgroundColor: const Color.fromARGB(255, 162, 210, 255),
                                 ),
                                 child: Text('Save'),
                               ),
@@ -834,7 +835,7 @@ class _EventLogPageState extends State<EventLogPage> {
                       width: double.infinity,
                       padding: EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.5),
+                        color: const Color.fromARGB(255, 189, 224, 254).withOpacity(0.5),
                         borderRadius: BorderRadius.circular(8.0),
                         border: Border.all(color: Colors.white),
                       ),

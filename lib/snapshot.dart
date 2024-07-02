@@ -279,7 +279,7 @@ class _SnapshotPageState extends State<SnapshotPage> {
             width: double.infinity,
             padding: EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: Color.fromARGB(255, 206, 132, 224),
+              color: Color.fromARGB(255, 255, 200, 221),
             ),
             child: Column(
               children: [
