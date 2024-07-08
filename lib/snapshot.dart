@@ -279,7 +279,7 @@ class _SnapshotPageState extends State<SnapshotPage> {
             width: double.infinity,
             padding: EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: Color.fromARGB(255, 255, 200, 221),
+              color: Color.fromARGB(255, 206, 132, 224),
             ),
             child: Column(
               children: [
@@ -456,7 +456,6 @@ class _SnapshotPageState extends State<SnapshotPage> {
                     SizedBox(height: 16),
                     Container(
                       width: double.infinity,
-                      
                       child: ElevatedButton(
                         onPressed: _startSnapshot,
                         style: ElevatedButton.styleFrom(
@@ -498,42 +497,45 @@ class _SnapshotPageState extends State<SnapshotPage> {
                           },
                         ),
                         Container(
-                          decoration: BoxDecoration(
-                            border: isSnapshotCaptured ? Border.all(color: Colors.white, width:2.0): null,
-                            borderRadius : BorderRadius.circular(30.0), //adjust radius 
-                          ),
-                          child: TextButton.icon(
-                            icon: Icon(
-                              Icons.arrow_forward,
-                              color: Colors.white,
-                              size: 36.0,
+                            decoration: BoxDecoration(
+                              border: isSnapshotCaptured
+                                  ? Border.all(color: Colors.white, width: 2.0)
+                                  : null,
+                              borderRadius:
+                                  BorderRadius.circular(30.0), //adjust radius
                             ),
-                            label: Text(
-                              "Next",
-                              style: TextStyle(
+                            child: TextButton.icon(
+                              icon: Icon(
+                                Icons.arrow_forward,
                                 color: Colors.white,
-                                fontSize: 20.0,
+                                size: 36.0,
                               ),
-                            ),
-                            onPressed: isSnapshotCaptured
-                                ? () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => EventLogPage(
-                                          userId: userId,
-                                          participantId: participantId,
-                                          experimenterId: experimenterId, // Include experimenterId
-                                          sessionId: sessionId,
-                                          mDaqStatus: mDaqStatus,
-                                          bioPacStatus: bioPacStatus,
+                              label: Text(
+                                "Next",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20.0,
+                                ),
+                              ),
+                              onPressed: isSnapshotCaptured
+                                  ? () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => EventLogPage(
+                                            userId: userId,
+                                            participantId: participantId,
+                                            experimenterId:
+                                                experimenterId, // Include experimenterId
+                                            sessionId: sessionId,
+                                            mDaqStatus: mDaqStatus,
+                                            bioPacStatus: bioPacStatus,
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  }
-                                : null,
-                          )
-                        ),
+                                      );
+                                    }
+                                  : null,
+                            )),
                       ],
                     ),
                   ],

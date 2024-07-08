@@ -202,7 +202,7 @@ class _InitializationPageState extends State<InitializationPage>
             height: MediaQuery.of(context).size.height,
             padding: EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: Color.fromARGB(255, 255, 200, 221),
+              color: Color.fromARGB(255, 206, 132, 224),
             ),
             child: Column(
               children: [
@@ -227,7 +227,7 @@ class _InitializationPageState extends State<InitializationPage>
                         children: [
                           Flexible(
                             child: Container(
-                              height: 80,
+                              height: 90,
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.white),
                                 borderRadius: BorderRadius.circular(8.0),
@@ -264,7 +264,7 @@ class _InitializationPageState extends State<InitializationPage>
                           SizedBox(width: 16),
                           Flexible(
                             child: Container(
-                              height: 80,
+                              height: 90,
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.white),
                                 borderRadius: BorderRadius.circular(8.0),
@@ -302,7 +302,7 @@ class _InitializationPageState extends State<InitializationPage>
                           SizedBox(width: 16),
                           Flexible(
                             child: Container(
-                              height: 80,
+                              height: 90,
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.white),
                                 borderRadius: BorderRadius.circular(8.0),
@@ -491,44 +491,45 @@ class _InitializationPageState extends State<InitializationPage>
                           ),
                           Container(
                             decoration: BoxDecoration(
-                              border: isNextButtonActive ? Border.all(color: Colors.white, width: 2.0) : null,
+                              border: isNextButtonActive
+                                  ? Border.all(color: Colors.white, width: 2.0)
+                                  : null,
                               borderRadius: BorderRadius.circular(30.0),
-                          ),
-                          child: TextButton.icon(
-                            icon: Icon(
-                              Icons.arrow_forward,
-                              color: Colors.white,
-                              size: 36.0,
                             ),
-                            label: Text(
-                              "Next",
-                              style: TextStyle(
+                            child: TextButton.icon(
+                              icon: Icon(
+                                Icons.arrow_forward,
                                 color: Colors.white,
-                                fontSize: 20.0,
+                                size: 36.0,
                               ),
-                            ),
-                            onPressed: isNextButtonActive
-                                ? () async {
-                                    await saveToCsv();
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => SyncTimePage(
-                                          userId: userId,
-                                          participantId: participantId,
-                                          mDaqStatus: mDaqStatus,
-                                          bioPacStatus: bioPacStatus,
-                                          experimenterId:
-                                              experimenterId, // Include experimenterId
-                                          sessionId: sessionId,
+                              label: Text(
+                                "Next",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20.0,
+                                ),
+                              ),
+                              onPressed: isNextButtonActive
+                                  ? () async {
+                                      await saveToCsv();
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => SyncTimePage(
+                                            userId: userId,
+                                            participantId: participantId,
+                                            mDaqStatus: mDaqStatus,
+                                            bioPacStatus: bioPacStatus,
+                                            experimenterId:
+                                                experimenterId, // Include experimenterId
+                                            sessionId: sessionId,
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  }
-                                : null,
-                          ),
+                                      );
+                                    }
+                                  : null,
+                            ),
                           )
-                          
                         ],
                       ),
                       Text(

@@ -18,7 +18,6 @@ class EventLogPage extends StatefulWidget {
   final String mDaqStatus;
   final String bioPacStatus;
 
-
   const EventLogPage({
     Key? key,
     required this.userId,
@@ -78,7 +77,7 @@ class _EventLogPageState extends State<EventLogPage> {
     _checkDevices();
   }
 
-  void _initializeVariables(){
+  void _initializeVariables() {
     userId = widget.userId;
     participantId = widget.participantId;
     mDaqStatus = widget.mDaqStatus;
@@ -117,7 +116,8 @@ class _EventLogPageState extends State<EventLogPage> {
     UsbDevice? connectedDevice; ////
 
     for (var device in devices) {
-      if (device.productName != null && device.productName!.contains('Pico W')) {
+      if (device.productName != null &&
+          device.productName!.contains('Pico W')) {
         picoWConnected = true;
         connectedDevice = device;
         break;
@@ -130,11 +130,12 @@ class _EventLogPageState extends State<EventLogPage> {
       _stopButtonEnabled = picoWConnected;
 
       if (!picoWConnected) {
-        userId = widget.userId; // Keep the previous userId when the device is unplugged
+        userId = widget
+            .userId; // Keep the previous userId when the device is unplugged
       }
     });
 
-    if (picoWConnected && _device != connectedDevice){
+    if (picoWConnected && _device != connectedDevice) {
       await _connectTo(connectedDevice);
     }
   }
@@ -177,9 +178,10 @@ class _EventLogPageState extends State<EventLogPage> {
   }
 
   Future<void> _requestPermissionAndInit() async {
-    var status = await Permission.storage.status; 
+    var status = await Permission.storage.status;
     if (!status.isGranted) {
-      status = await Permission.storage.request(); //used to be permission.manageexternalstorage.status
+      status = await Permission.storage
+          .request(); //used to be permission.manageexternalstorage.status
       if (!status.isGranted) {
         print('Storage permission denied');
         return;
@@ -189,89 +191,100 @@ class _EventLogPageState extends State<EventLogPage> {
   }
 
   Future<String?> _getDocumentsDirectoryPath() async {
-  try {
-    // Assuming 'Documents' folder is directly accessible
-    String documentsPath = '/storage/emulated/0/Documents'; // Update with actual path
-    return documentsPath;
-  } catch (err) {
-    print("Error getting documents directory: $err");
-    return null;
+    try {
+      // Assuming 'Documents' folder is directly accessible
+      String documentsPath =
+          '/storage/emulated/0/Documents'; // Update with actual path
+      return documentsPath;
+    } catch (err) {
+      print("Error getting documents directory: $err");
+      return null;
+    }
   }
-}
 
-  void _logEvent(BuildContext context, String eventDescription, String time) async {
-  final now = DateTime.now();
-  final date = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+  void _logEvent(
+      BuildContext context, String eventDescription, String time) async {
+    final now = DateTime.now();
+    final date =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
-  final logEntry = [date, time, eventDescription, userId, participantId, experimenterId, sessionId];
+    final logEntry = [
+      date,
+      time,
+      eventDescription,
+      userId,
+      participantId,
+      experimenterId,
+      sessionId
+    ];
 
-  setState(() {
-    _logData.insert(0,logEntry);
-    _logData.sort((a, b) => '${b[0]} ${b[1]}'.compareTo('${a[0]} ${a[1]}')); // Sort by date and time
-  });
+    setState(() {
+      _logData.insert(0, logEntry);
+      _logData.sort((a, b) => '${b[0]} ${b[1]}'
+          .compareTo('${a[0]} ${a[1]}')); // Sort by date and time
+    });
 
     _scrollController.animateTo(
-    0,
-    duration: Duration(milliseconds: 300),
-    curve: Curves.easeOut,
-  );
+      0,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
 
-  final documentsDir = await _getDocumentsDirectoryPath();
-  if (documentsDir != null) {
-    final filePath = join(documentsDir, '${widget.userId}.csv');
-    final file = File(filePath);
+    final documentsDir = await _getDocumentsDirectoryPath();
+    if (documentsDir != null) {
+      final filePath = join(documentsDir, '${widget.userId}.csv');
+      final file = File(filePath);
 
-    try {
-      bool fileExists = await file.exists();
+      try {
+        bool fileExists = await file.exists();
 
-      // Append the new log entry to the CSV file  
-      final csvData = ListToCsvConverter().convert([logEntry]) + '\n'; 
-      await file.writeAsString(csvData, mode: fileExists ? FileMode.append : FileMode.write);
+        // Append the new log entry to the CSV file
+        final csvData = ListToCsvConverter().convert([logEntry]) + '\n';
+        await file.writeAsString(csvData,
+            mode: fileExists ? FileMode.append : FileMode.write);
 
-      print('Log Entry: $logEntry');
-      print('CSV file saved at: $filePath');
-    } 
-    catch (e) {
-      print('Error writing to file: $e');
+        print('Log Entry: $logEntry');
+        print('CSV file saved at: $filePath');
+      } catch (e) {
+        print('Error writing to file: $e');
+      }
+    } else {
+      print('Failed to get documents directory');
     }
-  } 
-  else {
-    print('Failed to get documents directory');
   }
-}
 
   void _loadLog() async {
-  final documentsDir = await _getDocumentsDirectoryPath();
-  if (documentsDir != null) {
-    final path = join(documentsDir, '${widget.userId}.csv');
-    final file = File(path);
+    final documentsDir = await _getDocumentsDirectoryPath();
+    if (documentsDir != null) {
+      final path = join(documentsDir, '${widget.userId}.csv');
+      final file = File(path);
 
-    if (await file.exists()) {
-      final input = await file.readAsString();
-      List<List<dynamic>> data = CsvToListConverter().convert(input);
+      if (await file.exists()) {
+        final input = await file.readAsString();
+        List<List<dynamic>> data = CsvToListConverter().convert(input);
 
-      // Add filtering logic here to filter logs by date or session
-      final now = DateTime.now();
-      final today = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+        // Add filtering logic here to filter logs by date or session
+        final now = DateTime.now();
+        final today =
+            '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
-      List<List<dynamic>> filteredData = [];
-      for (var entry in data) {
-        if (entry.length >= 7 && entry[0] == today) { 
-          filteredData.add(entry);  
+        List<List<dynamic>> filteredData = [];
+        for (var entry in data) {
+          if (entry.length >= 7 && entry[0] == today) {
+            filteredData.add(entry);
+          }
         }
-      }
 
-      setState(() {
-        _logData = filteredData;
-      });
-    } 
-    else {
-      setState(() {
-        _logData = [];
-      });
+        setState(() {
+          _logData = filteredData;
+        });
+      } else {
+        setState(() {
+          _logData = [];
+        });
+      }
     }
   }
-}
 
   Widget _buildLogList() {
     return ListView.builder(
@@ -286,37 +299,35 @@ class _EventLogPageState extends State<EventLogPage> {
       },
     );
   }
+
   Future<void> _showCravingIntensityDialog(BuildContext context) async {
     int selectedCravingIntensity = 0;
 
     return showDialog<void>(
-      context: context,
-      builder: (BuildContext context){
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
               title: Text('Choose Craving Intensity'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                        DropdownButton<int>( 
-                          value: selectedCravingIntensity,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedCravingIntensity = value!;
-                            });
-                          },
-                          items: List.generate(
-                            101,
-                            (index) => DropdownMenuItem(
-                              value: index,
-                              child: Text(index.toString().padLeft(2, '0')),
-                            ),
-                          ),
-                        ),
-                ]
-              ),
-            
+              content:
+                  Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                DropdownButton<int>(
+                  value: selectedCravingIntensity,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedCravingIntensity = value!;
+                    });
+                  },
+                  items: List.generate(
+                    101,
+                    (index) => DropdownMenuItem(
+                      value: index,
+                      child: Text(index.toString().padLeft(2, '0')),
+                    ),
+                  ),
+                ),
+              ]),
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
@@ -326,51 +337,46 @@ class _EventLogPageState extends State<EventLogPage> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    _logEvent(context,'Cow Score $selectedCravingIntensity', _getCurrentTime());
+                    _logEvent(context, 'Cow Score $selectedCravingIntensity',
+                        _getCurrentTime());
                     Navigator.of(context).pop();
                   },
                   child: Text('Log Event'),
                 ),
               ],
             );
-          }
-          
-        );
-      }
-    );
-
+          });
+        });
   }
+
   Future<void> _showCowScoreDialog(BuildContext context) async {
     int selectedCowScore = 0;
 
     return showDialog<void>(
-      context: context,
-      builder: (BuildContext context){
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
               title: Text('Choose Cow Score'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                        DropdownButton<int>( 
-                          value: selectedCowScore,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedCowScore = value!;
-                            });
-                          },
-                          items: List.generate(
-                            31,
-                            (index) => DropdownMenuItem(
-                              value: index,
-                              child: Text(index.toString().padLeft(2, '0')),
-                            ),
-                          ),
-                        ),
-                ]
-              ),
-            
+              content:
+                  Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                DropdownButton<int>(
+                  value: selectedCowScore,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedCowScore = value!;
+                    });
+                  },
+                  items: List.generate(
+                    31,
+                    (index) => DropdownMenuItem(
+                      value: index,
+                      child: Text(index.toString().padLeft(2, '0')),
+                    ),
+                  ),
+                ),
+              ]),
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
@@ -380,20 +386,18 @@ class _EventLogPageState extends State<EventLogPage> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    _logEvent(context,'Cow Score $selectedCowScore', _getCurrentTime());
+                    _logEvent(context, 'Cow Score $selectedCowScore',
+                        _getCurrentTime());
                     Navigator.of(context).pop();
                   },
                   child: Text('Log Event'),
                 ),
               ],
             );
-          }
-          
-        );
-      }
-    );
-
+          });
+        });
   }
+
   Future<void> _showManualEventDialog(BuildContext context) async {
     int selectedHour = 0;
     int selectedMinute = 0;
@@ -486,7 +490,8 @@ class _EventLogPageState extends State<EventLogPage> {
                   onPressed: () {
                     String formattedTime =
                         '${selectedHour.toString().padLeft(2, '0')}:${selectedMinute.toString().padLeft(2, '0')}:${selectedSecond.toString().padLeft(2, '0')}';
-                    _logEvent(context, _eventController.text.trim(), formattedTime);
+                    _logEvent(
+                        context, _eventController.text.trim(), formattedTime);
                     Navigator.of(context).pop();
                   },
                   child: Text('Log Event'),
@@ -498,6 +503,7 @@ class _EventLogPageState extends State<EventLogPage> {
       },
     );
   }
+
   Future<void> _showStopConfirmationDialog(BuildContext context) async {
     showDialog<void>(
       context: context,
@@ -517,7 +523,7 @@ class _EventLogPageState extends State<EventLogPage> {
               onPressed: () {
                 Navigator.of(context).pop();
                 _stopEventLog(); // Call the stop function
-                _logEvent(context,'Stop',_getCurrentTime());
+                _logEvent(context, 'Stop', _getCurrentTime());
               },
             ),
           ],
@@ -534,7 +540,7 @@ class _EventLogPageState extends State<EventLogPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 255, 200, 221),
+      backgroundColor: Color.fromARGB(255, 234, 122, 244),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -566,7 +572,7 @@ class _EventLogPageState extends State<EventLogPage> {
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.white),
                               borderRadius: BorderRadius.circular(8.0),
-                              color: const Color.fromARGB(255, 189, 224, 254).withOpacity(0.5),
+                              color: Colors.white.withOpacity(0.5),
                             ),
                             padding: EdgeInsets.all(8.0),
                             child: Column(
@@ -604,7 +610,7 @@ class _EventLogPageState extends State<EventLogPage> {
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.white),
                               borderRadius: BorderRadius.circular(8.0),
-                              color: const Color.fromARGB(255, 189, 224, 254).withOpacity(0.5),
+                              color: Colors.white.withOpacity(0.5),
                             ),
                             padding: EdgeInsets.all(8.0),
                             child: Column(
@@ -641,7 +647,7 @@ class _EventLogPageState extends State<EventLogPage> {
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.white),
                               borderRadius: BorderRadius.circular(8.0),
-                              color: const Color.fromARGB(255, 189, 224, 254).withOpacity(0.5),
+                              color: Colors.white.withOpacity(0.5),
                             ),
                             padding: EdgeInsets.all(8.0),
                             child: Column(
@@ -677,9 +683,12 @@ class _EventLogPageState extends State<EventLogPage> {
                     Container(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: _stopButtonEnabled ? () => _showStopConfirmationDialog(context) : null,
+                        onPressed: _stopButtonEnabled
+                            ? () => _showStopConfirmationDialog(context)
+                            : null,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _stopButtonEnabled ? Colors.red : Colors.grey,
+                          backgroundColor:
+                              _stopButtonEnabled ? Colors.red : Colors.grey,
                           padding: EdgeInsets.symmetric(vertical: 16.0),
                         ),
                         child: Text(
@@ -694,62 +703,77 @@ class _EventLogPageState extends State<EventLogPage> {
                       children: [
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: () => _logEvent(context, 'Event 1', _getCurrentTime()),
+                            onPressed: () => _logEvent(
+                                context, 'Break Start', _getCurrentTime()),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromARGB(255, 162, 210, 255),
-                              padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.03),
+                              backgroundColor: Color.fromARGB(255,58,134,255),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: MediaQuery.of(context).size.height *
+                                      0.03),
                             ),
                             child: Text(
-                              'Event 1',
-                              style: TextStyle(fontSize: 20.0, color: Colors.white),
+                              'Break Start',
+                              style: TextStyle(
+                                  fontSize: 20.0, color: Colors.white),
                             ),
                           ),
                         ),
                         SizedBox(width: 16),
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: () => _logEvent(context, 'Event 2', _getCurrentTime()),
+                            onPressed: () => _logEvent(
+                                context, 'Break End', _getCurrentTime()),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromARGB(255, 162, 210, 255),
-                              padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.03),
+                              backgroundColor: Color.fromARGB(255,58,134,255),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: MediaQuery.of(context).size.height *
+                                      0.03),
                             ),
                             child: Text(
-                              'Event 2',
-                              style: TextStyle(fontSize: 20.0, color: Colors.white),
+                              'Break End',
+                              style: TextStyle(
+                                  fontSize: 20.0, color: Colors.white),
                             ),
                           ),
                         ),
                       ],
                     ),
-
                     SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: () => _logEvent(context, 'Event 3', _getCurrentTime()),
+                            onPressed: () => _logEvent(context,
+                                'Medication Intake', _getCurrentTime()),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromARGB(255, 162, 210, 255),
-                              padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.03),
+                              backgroundColor: Color.fromARGB(255, 131, 56, 236),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: MediaQuery.of(context).size.height *
+                                      0.03),
                             ),
                             child: Text(
-                              'Event 3',
-                              style: TextStyle(fontSize: 20.0, color: Colors.white),
+                              'Medication Intake',
+                              style: TextStyle(
+                                  fontSize: 20.0, color: Colors.white),
                             ),
                           ),
                         ),
                         SizedBox(width: 16),
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: () => _logEvent(context, 'Event 4', _getCurrentTime()),
+                            onPressed: () => _logEvent(
+                                context, 'Event 4', _getCurrentTime()),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromARGB(255, 162, 210, 255),
-                              padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.03),
+                              backgroundColor: Color.fromARGB(255, 131, 56, 236),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: MediaQuery.of(context).size.height *
+                                      0.03),
                             ),
                             child: Text(
                               'Event 4',
-                              style: TextStyle(fontSize: 20.0, color: Colors.white),
+                              style: TextStyle(
+                                  fontSize: 20.0, color: Colors.white),
                             ),
                           ),
                         ),
@@ -760,37 +784,49 @@ class _EventLogPageState extends State<EventLogPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () async {await _showCowScoreDialog(context);},
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color.fromARGB(255, 162, 210, 255),
-                                    padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.03),
-                                  ),
-                                  child: Text('Choose Cow Score',
-                                  style: TextStyle(fontSize: 20.0, color: Colors.white),
-                                  ),
-                                ),
-                              ),
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              await _showCowScoreDialog(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color.fromARGB(255, 74, 214, 109),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: MediaQuery.of(context).size.height *
+                                      0.03),
+                            ),
+                            child: Text(
+                              'Choose Cow Score',
+                              style: TextStyle(
+                                  fontSize: 20.0, color: Colors.white),
+                            ),
+                          ),
+                        ),
                         SizedBox(width: 16),
                         Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () async {await _showCravingIntensityDialog(context);},
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color.fromARGB(255, 162, 210, 255),
-                                    padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.03),
-                                  ),
-                                  child: Text('Choose Craving Intensity',
-                                  style: TextStyle(fontSize: 20.0, color: Colors.white),
-                                  ),
-                                ),
-                              ),
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              await _showCravingIntensityDialog(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color.fromARGB(255, 74, 214, 109),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: MediaQuery.of(context).size.height *
+                                      0.03),
+                            ),
+                            child: Text(
+                              'Choose Craving Intensity',
+                              style: TextStyle(
+                                  fontSize: 20.0, color: Colors.white),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                     SizedBox(height: 16),
                     Container(
                       padding: EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 189, 224, 254).withOpacity(0.5),
+                        color: Colors.white.withOpacity(0.5),
                         borderRadius: BorderRadius.circular(8.0),
                         border: Border.all(color: Colors.white),
                       ),
@@ -818,10 +854,14 @@ class _EventLogPageState extends State<EventLogPage> {
                               ),
                               SizedBox(width: 18.0),
                               ElevatedButton(
-                                onPressed: () => _logEvent(context, _eventController.text.trim(), _getCurrentTime()),
+                                onPressed: () => _logEvent(
+                                    context,
+                                    _eventController.text.trim(),
+                                    _getCurrentTime()),
                                 style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
-                                  backgroundColor: const Color.fromARGB(255, 162, 210, 255),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 50, vertical: 10),
+                                  backgroundColor: Colors.white,
                                 ),
                                 child: Text('Save'),
                               ),
@@ -835,7 +875,7 @@ class _EventLogPageState extends State<EventLogPage> {
                       width: double.infinity,
                       padding: EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 189, 224, 254).withOpacity(0.5),
+                        color: Colors.white.withOpacity(0.5),
                         borderRadius: BorderRadius.circular(8.0),
                         border: Border.all(color: Colors.white),
                       ),
@@ -852,7 +892,7 @@ class _EventLogPageState extends State<EventLogPage> {
                           ),
                           SizedBox(height: 16.0),
                           Container(
-                            height: MediaQuery.of(context).size.height * 0.3,
+                            height: MediaQuery.of(context).size.height * 0.25,
                             child: _buildLogList(),
                           ),
                         ],
@@ -860,54 +900,53 @@ class _EventLogPageState extends State<EventLogPage> {
                     ),
                     SizedBox(height: 16),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        TextButton.icon(
-                          icon: Icon(
-                            Icons.arrow_back,
-                            color:Colors.white,
-                            size:36.0,
-                          ),
-                          label:Text(
-                            "Back",
-                            style: TextStyle(color:Colors.white, fontSize:20.0),
-                          ),
-                          onPressed: (){
-                            Navigator.pop(context);
-                          },
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30.0),
-                            border: Border.all(color: Colors.white, width: 2.0),
-                          ),
-                          child: TextButton.icon(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          TextButton.icon(
                             icon: Icon(
-                              Icons.arrow_forward,
-                              color:Colors.white,
+                              Icons.arrow_back,
+                              color: Colors.white,
                               size: 36.0,
                             ),
                             label: Text(
-                              "Next",
+                              "Back",
                               style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20.0,
-                              ),
+                                  color: Colors.white, fontSize: 20.0),
                             ),
                             onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => UploadPage(
-                                        userId: userId,
-                                   ),
-                                 ),
-                              );
-                            }
-                          )
-                        )
-                      ]
-                    )
+                              Navigator.pop(context);
+                            },
+                          ),
+                          Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30.0),
+                                border:
+                                    Border.all(color: Colors.white, width: 2.0),
+                              ),
+                              child: TextButton.icon(
+                                  icon: Icon(
+                                    Icons.arrow_forward,
+                                    color: Colors.white,
+                                    size: 36.0,
+                                  ),
+                                  label: Text(
+                                    "Next",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20.0,
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => UploadPage(
+                                          userId: userId,
+                                        ),
+                                      ),
+                                    );
+                                  }))
+                        ])
                   ],
                 ),
               ],
