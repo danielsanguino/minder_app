@@ -279,7 +279,7 @@ class _SnapshotPageState extends State<SnapshotPage> {
             width: double.infinity,
             padding: EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: Color.fromARGB(255, 206, 132, 224),
+              color: Color.fromARGB(255, 132, 170, 224),
             ),
             child: Column(
               children: [
@@ -303,12 +303,12 @@ class _SnapshotPageState extends State<SnapshotPage> {
                       children: [
                         Flexible(
                           child: Container(
-                            height: 80,
+                            height: 90,
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.white),
                               borderRadius: BorderRadius.circular(8.0),
                             ),
-                            padding: EdgeInsets.all(8.0),
+                            padding: EdgeInsets.all(7.0),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -340,12 +340,12 @@ class _SnapshotPageState extends State<SnapshotPage> {
                         SizedBox(width: 16),
                         Flexible(
                           child: Container(
-                            height: 80,
+                            height: 90,
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.white),
                               borderRadius: BorderRadius.circular(8.0),
                             ),
-                            padding: EdgeInsets.all(8.0),
+                            padding: EdgeInsets.all(7.0),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -378,12 +378,12 @@ class _SnapshotPageState extends State<SnapshotPage> {
                         SizedBox(width: 16),
                         Flexible(
                           child: Container(
-                            height: 80,
+                            height: 90,
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.white),
                               borderRadius: BorderRadius.circular(8.0),
                             ),
-                            padding: EdgeInsets.all(8.0),
+                            padding: EdgeInsets.all(7.0),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -421,7 +421,7 @@ class _SnapshotPageState extends State<SnapshotPage> {
                               border: Border.all(color: Colors.white),
                               borderRadius: BorderRadius.circular(8.0),
                             ),
-                            padding: EdgeInsets.all(8.0),
+                            padding: EdgeInsets.all(7.0),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [

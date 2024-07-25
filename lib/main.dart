@@ -38,7 +38,7 @@ class _MinderAppState extends State<MinderApp>
         child: Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: Color.fromARGB(255, 206, 132, 224),
+            color: Color.fromARGB(255, 132, 170, 224),
           ),
           child: Column(
             children: [
@@ -155,7 +155,7 @@ class _MinderAppState extends State<MinderApp>
                               (Set<MaterialState> states) {
                                 if (states.contains(MaterialState.disabled)) {
                                   return const Color.fromARGB(
-                                      255, 206, 132, 224); // Light red color
+                                      255, 132, 170, 224); // Light red color
                                 }
                                 return Colors.white; // Green color
                               },

@@ -540,7 +540,7 @@ class _EventLogPageState extends State<EventLogPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 234, 122, 244),
+      backgroundColor: Color.fromARGB(255, 132, 170, 224),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(

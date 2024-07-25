@@ -40,7 +40,7 @@ class ReportPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 206, 132, 224),
+      backgroundColor: Color.fromARGB(255, 132, 170, 224),
       body: SafeArea(
         child: Column(
           children: [
@@ -50,7 +50,7 @@ class ReportPage extends StatelessWidget {
                   width: double.infinity,
                   padding: EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
-                    color: Color.fromARGB(255, 206, 132, 224),
+                    color: Color.fromARGB(255, 132, 170, 224),
                   ),
                   child: Column(
                     children: [
